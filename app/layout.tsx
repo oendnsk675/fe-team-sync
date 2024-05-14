@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-theme="lofi">
-      <body className={inter.className}>{children}</body>
+      <body className={`${inter.className} text-primary`}>{children}</body>
     </html>
   );
 }

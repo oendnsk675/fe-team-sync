@@ -21,3 +21,16 @@
     text-wrap: balance;
   }
 }
+
+.bg-secondary {
+  background-color: #1db88e;
+}
+
+.btn-primary {
+  background-color: #1db88e;
+  border: none;
+}
+
+.text-secondary {
+  color: #1db88e;
+}
