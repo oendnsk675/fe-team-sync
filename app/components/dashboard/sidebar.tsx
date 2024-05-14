@@ -36,7 +36,7 @@ const routes = [
   {
     label: "Members",
     icon: faUsers,
-    href: "/member",
+    href: "/members",
   },
   {
     label: "Schadule",
