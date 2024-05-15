@@ -34,3 +34,33 @@
 .text-secondary {
   color: #1db88e;
 }
+
+/* Mengatur gaya untuk seluruh scrollbar */
+::-webkit-scrollbar {
+  width: 10px; /* Lebar scrollbar vertikal */
+}
+.w-scroll-6::-webkit-scrollbar {
+  width: 6px; /* Lebar scrollbar vertikal */
+}
+
+/* Mengatur track (background) dari scrollbar */
+::-webkit-scrollbar-track {
+  background: #f0f0f0; /* Warna background track */
+  border-radius: 10px; /* Sudut membulat */
+}
+
+/* Mengatur thumb (pegangan) dari scrollbar */
+::-webkit-scrollbar-thumb {
+  background-color: #b9dfc6; /* Warna pegangan */
+  border-radius: 10px; /* Sudut membulat */
+}
+
+/* Mengatur pegangan saat di-hover */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #98c0af; /* Warna pegangan saat di-hover */
+}
+
+/* Mengatur pegangan saat sedang di-drag */
+::-webkit-scrollbar-thumb:active {
+  background-color: #333; /* Warna pegangan saat sedang di-drag */
+}

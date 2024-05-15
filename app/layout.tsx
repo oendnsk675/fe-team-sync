@@ -16,7 +16,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-theme="lofi">
-      <body className={`${inter.className} text-primary`}>{children}</body>
+      <body className={`${inter.className} text-primary overflow-hidden`}>
+        {children}
+      </body>
     </html>
   );
 }

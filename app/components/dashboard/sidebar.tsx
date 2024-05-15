@@ -15,6 +15,7 @@ import {
   faMessage,
   faSitemap,
   faUsers,
+  faVideo,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -45,6 +46,11 @@ const routes = [
     href: "/chat",
   },
   {
+    label: "Meet",
+    icon: faVideo,
+    href: "/meet",
+  },
+  {
     label: "Schadule",
     icon: faCalendarDays,
     href: "/schadule",
@@ -60,7 +66,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="2xl:w-[15%] lg:w-[20%] h-screen top-0 left-0 py-6 border rounded-md m-2 flex flex-col gap-16 justify-between shadow ">
+    <aside className="2xl:w-[15%] lg:w-[20%] min-h-screen top-0 left-0 py-6 border rounded-md m-2 flex flex-col gap-16 justify-between shadow fixed inset-0 overflow-y-auto w-scroll-6">
       {/* menu top */}
       <div className="">
         <div className="px-4 mb-6">
