@@ -6,9 +6,9 @@ export default function MainLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <div className="flex">
+    <div className="flex overflow-hidden">
       <Sidebar />
-      <main className="p-6 flex-1 relative">{children}</main>
+      <main className="p-6 flex-1 relative overflow-hidden">{children}</main>
     </div>
   );
 }
