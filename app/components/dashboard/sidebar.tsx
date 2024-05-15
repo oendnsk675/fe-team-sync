@@ -66,7 +66,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="2xl:w-[15%] lg:w-[20%] min-h-screen top-0 left-0 py-6 border rounded-md m-2 flex flex-col gap-16 justify-between shadow fixed inset-0 overflow-y-auto w-scroll-6">
+    <aside className="2xl:w-[15%] lg:w-[20%] min-h-screen top-0 left-0 py-6 border rounded-md m-2 flex flex-col gap-16 justify-between shadow fixed inset-0 overflow-y-auto w-scroll-6 bg-primary-content">
       {/* menu top */}
       <div className="">
         <div className="px-4 mb-6">
@@ -142,10 +142,10 @@ export function Sidebar() {
             </div>
           </div>
         </div>
-        <div className="px-6 flex flex-col gap-2 text-slate-500 mb-1">
+        <div className="flex flex-col gap-2 text-slate-500 mb-1">
           <Link
-            href={"/settigs"}
-            className={`flex gap-3 items-center py-3 transition-all duration-150 ease-in ${
+            href={"/settings"}
+            className={`flex px-6  gap-3 items-center py-3 transition-all duration-150 ease-in ${
               pathname == "/settings"
                 ? " border-l-2 bg-primary/5 border-primary text-primary"
                 : ""
