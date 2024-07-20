@@ -17,27 +17,7 @@ import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 import { Chart, ArcElement, ChartOptions } from "chart.js";
 import { Doughnut, Pie } from "react-chartjs-2";
-
-const matrix_1 = [
-  {
-    name: "team",
-    icon: faPeopleGroup,
-    label: "Total Team",
-    value: "5 Team",
-  },
-  {
-    name: "member",
-    icon: faUserGroup,
-    label: "Total Member",
-    value: "5 Member  ",
-  },
-  {
-    name: "avg",
-    icon: faGaugeSimple,
-    label: "Avg. Access Time",
-    value: "5 Minutes",
-  },
-];
+import { axiosWithAuth } from "@/app/utils/axiosInstance";
 
 const data = {
   labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
@@ -74,6 +54,37 @@ const textCenter = {
 export default function Page() {
   const [clientSide, setClientSide] = useState(false);
   const chartRef = useRef(null);
+
+  const [dataTeam, setDataTeam] = useState({
+    totalTeam: 0,
+    totalMember: 0,
+    avg: 0,
+  });
+
+  const matrix_1 = [
+    {
+      name: "team",
+      icon: faPeopleGroup,
+      label: "Total Team",
+      value: `${dataTeam.totalTeam} Team`,
+    },
+    {
+      name: "member",
+      icon: faUserGroup,
+      label: "Total Member",
+      value: `${dataTeam.totalMember} Member`,
+    },
+    {
+      name: "avg",
+      icon: faGaugeSimple,
+      label: "Avg. Access Time",
+      value: `${dataTeam.avg} Minute`,
+    },
+  ];
+
+  const fetchTotalTeam = () => {
+    axiosWithAuth.get("");
+  };
 
   useEffect(() => {
     setClientSide(true);

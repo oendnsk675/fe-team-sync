@@ -1,11 +1,40 @@
+"use client";
+
+import { useSignUp } from "@/app/hooks/useAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
 
-export default function page() {
+export default function Page() {
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    fullname: "",
+    avatar: "",
+    role: "user",
+  });
+
+  const { mutate, isLoading, isError, isSuccess, error } = useSignUp();
+
+  const handleChange = (e: any) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+    mutate(formData);
+  };
+
   return (
     <div className="w-full flex justify-center lg:mt-[4rem] 2xl:mt-[6rem]">
+      <ToastContainer />
       <div className="rounded bg-white shadow 2xl:w-[30%] lg:w-[40%] p-4">
         <div className="w-full flex flex-col items-center gap-6 p-3 mb-3">
           <Image
@@ -25,7 +54,11 @@ export default function page() {
           </div>
         </div>
 
-        <form action="" className="flex flex-col gap-4 mb-4">
+        <form
+          action=""
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-4 mb-4"
+        >
           <div className="input input-bordered rounded-md flex items-center gap-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -35,7 +68,32 @@ export default function page() {
             >
               <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z" />
             </svg>
-            <input type="text" className="grow" placeholder="Username" />
+            <input
+              type="text"
+              className="grow"
+              placeholder="Username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="input input-bordered rounded-md flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              className="w-4 h-4 opacity-70"
+            >
+              <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z" />
+            </svg>
+            <input
+              type="text"
+              className="grow"
+              placeholder="Fullname"
+              name="fullname"
+              value={formData.fullname}
+              onChange={handleChange}
+            />
           </div>
           <div className="input input-bordered rounded-md flex items-center gap-2">
             <svg
@@ -47,7 +105,14 @@ export default function page() {
               <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
               <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
             </svg>
-            <input type="text" className="grow" placeholder="Email" />
+            <input
+              type="text"
+              className="grow"
+              placeholder="Email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+            />
           </div>
           <div className="input input-bordered rounded-md flex items-center gap-2">
             <svg
@@ -62,10 +127,20 @@ export default function page() {
                 clipRule="evenodd"
               />
             </svg>
-            <input type="text" className="grow" placeholder="Password" />
+            <input
+              type="text"
+              className="grow"
+              placeholder="Password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+            />
           </div>
           <button className="btn btn-primary rounded-md btn-md hover:opacity-75">
-            Sign In
+            {isLoading && (
+              <span className="loading loading-dots loading-sm text-white"></span>
+            )}
+            {!isLoading && <>Sign In</>}
           </button>
         </form>
         <div className="w-full">
