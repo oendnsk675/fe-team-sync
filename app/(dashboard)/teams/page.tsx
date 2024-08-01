@@ -1,35 +1,58 @@
 "use client";
 
-import { useInstanceSelected } from "@/app/stores/userStore";
+import { useInstanceSelected, useUserActions } from "@/app/stores/userStore";
 import { axiosWithAuth } from "@/app/utils/axiosInstance";
-import { faSitemap } from "@fortawesome/free-solid-svg-icons";
+import {
+  faFilter,
+  faMagnifyingGlass,
+  faSitemap,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { error } from "console";
 import Link from "next/link";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { toast } from "react-toastify";
+import Pagination from "@/app/components/paggination";
+import queryClient from "@/app/utils/queryClient";
 
 export default function Page() {
-  let instanceSelected = useInstanceSelected();
+  const [instanceSelected, setInstanceSelected] = useState<string | null>(
+    localStorage.getItem("instanceSelected")
+  );
 
   const fetchTeam = () => {
+    let page = localStorage.getItem("page") || 1;
+    let limit = localStorage.getItem("limit") || 10;
+
     return axiosWithAuth
-      .get("teams")
+      .get(`teams?page=${page}&limit=${limit}`)
       .then(({ data }) => data.data)
       .catch((error) => {
         toast.error(error.response.data.message);
       });
   };
 
-  const { data: teams, isLoading } = useQuery("teams", fetchTeam);
+  const { data: teams, isLoading } = useQuery(["teams"], fetchTeam);
+
+  function handleSelectInstance(instance: string): void {
+    setInstanceSelected(instance);
+    console.log(instanceSelected);
+
+    localStorage.setItem("instanceSelected", instance);
+  }
 
   return (
-    <div className="w-full px-8">
-      {/* headerr */}
-      <div className="flex items-center gap-4 mb-8 text-slate-600">
-        <FontAwesomeIcon icon={faSitemap} size="lg" />
-        <h1 className="text-xl font-semibold">Teams</h1>
+    <div className="w-full">
+      {/* header */}
+      <div className=" mb-14">
+        <div className="flex items-center gap-4 mb-4 text-slate-600">
+          <FontAwesomeIcon icon={faSitemap} size="lg" />
+          <h1 className="text-xl font-semibold">Teams</h1>
+        </div>
+        <span className="block">
+          Manage your team and their permission here.
+        </span>
       </div>
 
       {!teams && (
@@ -47,32 +70,119 @@ export default function Page() {
       )}
 
       {teams && (
-        <div className="overflow-x-auto">
-          <table className="table table-zebra">
-            {/* head */}
-            <thead>
-              <tr>
-                <th className="text-center"></th>
-                <th className="text-center">Name</th>
-                <th className="text-center">Contact</th>
-                <th className="text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {teams.map((team: any, index: number) => (
-                <tr key={index + 1}>
-                  <th>{index + 1}</th>
-                  <td>{team.team_name}</td>
-                  <td>{team.description}</td>
-                  <td className="flex justify-center w-full">
-                    <button className="px-7 btn btn-sm btn-primary">
-                      Select
-                    </button>
-                  </td>
+        <div className="">
+          {/* header */}
+          <div className="flex justify-between items-center mb-6 bg-white p-5 rounded">
+            <h2 className="text-xl font-semibold">
+              All Teams <span className="text-slate-500">{teams.length}</span>
+            </h2>
+
+            <div className="flex gap-5">
+              <div className="input input-bordered input-sm flex items-center gap-2">
+                <input type="text" className="grow" placeholder="Search" />
+                <FontAwesomeIcon
+                  icon={faMagnifyingGlass}
+                  className="text-slate-500"
+                />
+              </div>
+
+              <div className="dropdown dropdown-end">
+                <button
+                  tabIndex={0}
+                  role="button"
+                  className=" btn btn-sm border border-slate-500 bg-white rounded mb-2"
+                >
+                  <FontAwesomeIcon icon={faFilter} />
+                  <span>Filters</span>
+                </button>
+                <ul
+                  tabIndex={0}
+                  className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+                >
+                  <li>
+                    <a>Item 1</a>
+                  </li>
+                  <li>
+                    <a>Item 2</a>
+                  </li>
+                </ul>
+              </div>
+              <Link
+                href={"/teams/add"}
+                className="btn btn-accent btn-sm px-10 rounded hover:opacity-75 transition-all duration-150"
+              >
+                Add Team
+              </Link>
+            </div>
+          </div>
+          {/* table */}
+          <div className="overflow-x-auto mb-6">
+            <table className="table">
+              {/* head */}
+              <thead className="bg-emerald-500/20 text-slate-900">
+                <tr>
+                  <th className="text-center tracking-wider py-4 rounded-tl"></th>
+                  <th className="text-center tracking-wider py-4 w-[360px]">
+                    Name
+                  </th>
+                  <th className="text-center tracking-wider py-4 w-[800px]">
+                    Description
+                  </th>
+                  <th className="text-center tracking-wider py-4 rounded-tr">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white">
+                {isLoading && (
+                  <span className="loading loading-ball loading-lg"></span>
+                )}
+                {!isLoading &&
+                  teams.data.map((team: any, index: number) => (
+                    <tr key={index + 1}>
+                      <th>{index + 1}</th>
+                      <td className="text-center">
+                        <div className="flex gap-3 items-center">
+                          <div className="w-11 h-11 rounded-lg bg-emerald-400/50"></div>
+                          <span>{team.team_name}</span>
+                        </div>
+                      </td>
+                      <td className="text-center">{team.description}</td>
+                      <td className="flex justify-center w-full">
+                        <button
+                          onClick={() => handleSelectInstance(team.team_id)}
+                          className={`px-7 btn btn-sm  ${
+                            instanceSelected == team.team_id
+                              ? "bg-accent text-white"
+                              : "btn-primary"
+                          }`}
+                        >
+                          Select
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+          {/* metadata */}
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="font-light">
+                Total <span className="font-semibold">10</span> data dari{" "}
+                <span className="font-semibold">20</span>
+              </span>
+            </div>
+            {/* paggination */}
+            <Pagination
+              page={+teams.page}
+              totalPages={+teams.totalPages}
+              onPageChange={(newPage) => {
+                localStorage.setItem("page", String(newPage));
+                queryClient.invalidateQueries(["teams"]);
+              }}
+            />
+          </div>
         </div>
       )}
     </div>

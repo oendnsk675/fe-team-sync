@@ -1,6 +1,11 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
+type UserActions = {
+  setUser: (user: any | null) => void;
+  setInstance: (instanceSelected: any | null) => void;
+};
+
 const useUserStore = create()(
   devtools((set) => ({
     user: null,
