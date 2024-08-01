@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,6 +20,7 @@ export default function RootLayout({
     <html lang="en" data-theme="lofi">
       <body className={`${inter.className} text-primary overflow-hidden`}>
         {children}
+        <ToastContainer />
       </body>
     </html>
   );

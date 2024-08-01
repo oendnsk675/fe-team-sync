@@ -1,9 +1,29 @@
+"use client";
+
+import { useInstanceSelected } from "@/app/stores/userStore";
+import { axiosWithAuth } from "@/app/utils/axiosInstance";
 import { faSitemap } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { error } from "console";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect } from "react";
+import { useQuery } from "react-query";
+import { toast } from "react-toastify";
 
-export default function page() {
+export default function Page() {
+  let instanceSelected = useInstanceSelected();
+
+  const fetchTeam = () => {
+    return axiosWithAuth
+      .get("teams")
+      .then(({ data }) => data.data)
+      .catch((error) => {
+        toast.error(error.response.data.message);
+      });
+  };
+
+  const { data: teams, isLoading } = useQuery("teams", fetchTeam);
+
   return (
     <div className="w-full px-8">
       {/* headerr */}
@@ -12,13 +32,13 @@ export default function page() {
         <h1 className="text-xl font-semibold">Teams</h1>
       </div>
 
-      {false && (
+      {!teams && (
         <div className="w-full min-h-screen flex justify-center items-center -mt-10">
           <div className="flex flex-col items-center gap-4">
             <FontAwesomeIcon icon={faSitemap} size="4x" />
             <Link
               href={"/teams/add"}
-              className="btn btn-primary btn-sm px-10 rounded hover:opacity-75 transition-all duration-150"
+              className="btn btn-primary btn-sm px-10 rounded hover:opacity-75 transition-all duration-150 mt-4"
             >
               Add Team
             </Link>
@@ -26,40 +46,31 @@ export default function page() {
         </div>
       )}
 
-      {true && (
+      {teams && (
         <div className="overflow-x-auto">
           <table className="table table-zebra">
             {/* head */}
             <thead>
               <tr>
-                <th></th>
-                <th>Name</th>
-                <th>Contact</th>
-                <th>Actions</th>
+                <th className="text-center"></th>
+                <th className="text-center">Name</th>
+                <th className="text-center">Contact</th>
+                <th className="text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {/* row 1 */}
-              <tr>
-                <th>1</th>
-                <td>Cy Ganderton</td>
-                <td>Quality Control Specialist</td>
-                <td>Blue</td>
-              </tr>
-              {/* row 2 */}
-              <tr>
-                <th>2</th>
-                <td>Hart Hagerty</td>
-                <td>Desktop Support Technician</td>
-                <td>Purple</td>
-              </tr>
-              {/* row 3 */}
-              <tr>
-                <th>3</th>
-                <td>Brice Swyre</td>
-                <td>Tax Accountant</td>
-                <td>Red</td>
-              </tr>
+              {teams.map((team: any, index: number) => (
+                <tr key={index + 1}>
+                  <th>{index + 1}</th>
+                  <td>{team.team_name}</td>
+                  <td>{team.description}</td>
+                  <td className="flex justify-center w-full">
+                    <button className="px-7 btn btn-sm btn-primary">
+                      Select
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

@@ -3,41 +3,57 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { axiosWithAuth } from "../utils/axiosInstance";
-import useUserStore from "../stores/userStore";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import queryClient from "../utils/queryClient";
+import { useInstanceSelected, useUserActions } from "../stores/userStore";
 
 export const AppProvider = ({ children }: any) => {
   const router = useRouter();
+  const pathname = usePathname();
   const [authenticated, setAuthenticated] = useState(false);
-  const setUser = useUserStore((state: any) => state.setUser);
+  const { setUser, setInstance } = useUserActions();
+  const instanceSelected = useInstanceSelected();
 
   const {
     data: userProfile,
     isLoading,
     isError,
   } = useQuery("profile", fetchProfile, {
-    enabled: false, // Tidak aktifkan permintaan secara otomatis, akan diaktifkan saat token tersedia
     onSuccess: ({ data }) => {
+      let instanceSelectedLS = localStorage.getItem("instanceSelected");
       setUser(data);
       setAuthenticated(true);
+
+      if (!instanceSelected && pathname !== "/teams/add") {
+        if (!instanceSelectedLS) {
+          router.push("/teams");
+        } else {
+          setInstance(instanceSelectedLS);
+        }
+      }
     },
     onError: () => {
       setAuthenticated(false);
-      router.replace("/sign-in");
+      router.push("/sign-in");
     },
   });
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
-    if (token) {
-      // Aktifkan permintaan data profil jika token tersedia
-      queryClient.prefetchQuery("profile", fetchProfile); // Pre-fetch data profil untuk caching
-    } else {
-      setAuthenticated(false);
-      router.replace("/sign-in");
+    let instanceSelectedLS = localStorage.getItem("instanceSelected");
+
+    if (!instanceSelected && pathname !== "/teams/add") {
+      if (!instanceSelectedLS) {
+        router.push("/teams");
+      } else {
+        setInstance(instanceSelectedLS);
+      }
     }
-  }, [router]);
+    if (!token) {
+      router.replace("/sign-in");
+      setAuthenticated(false);
+    }
+  }, [pathname]);
 
   if (isLoading) {
     return (
@@ -47,7 +63,7 @@ export const AppProvider = ({ children }: any) => {
     );
   }
 
-  return <>{children}</>;
+  return <div className="xl:text-sm 2xl:text-base">{children}</div>;
 };
 
 const fetchProfile = async () => {

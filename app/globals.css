@@ -43,6 +43,10 @@
   width: 6px; /* Lebar scrollbar vertikal */
 }
 
+.w-scroll-3::-webkit-scrollbar {
+  width: 3px; /* Lebar scrollbar vertikal */
+}
+
 /* Mengatur track (background) dari scrollbar */
 ::-webkit-scrollbar-track {
   background: #f0f0f0; /* Warna background track */
@@ -63,4 +67,8 @@
 /* Mengatur pegangan saat sedang di-drag */
 ::-webkit-scrollbar-thumb:active {
   background-color: #333; /* Warna pegangan saat sedang di-drag */
+}
+
+.chat .chat-bubble {
+  width: 100%;
 }
