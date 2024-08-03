@@ -37,6 +37,8 @@ const useWebSocket = ({ url, sts = "connecting", queryKey }: WebSocketArgs) => {
     });
 
     socketInstance.on("message", (newMessage: string) => {
+      console.log("baru");
+
       queryClient.setQueryData<string[]>(queryKey, (oldMessages) => {
         return oldMessages ? [...oldMessages, newMessage] : [newMessage];
       });
@@ -53,9 +55,15 @@ const useWebSocket = ({ url, sts = "connecting", queryKey }: WebSocketArgs) => {
     };
   }, [initializeSocket]);
 
-  const sendMessage = (message: string) => {
+  const sendMessage = (message: string, team_id: any) => {
     if (socket) {
-      socket.emit("message", message);
+      const payload = {
+        message,
+        team_id,
+      };
+
+      const jsonString = JSON.stringify(payload);
+      socket.emit("message", payload);
     }
   };
 

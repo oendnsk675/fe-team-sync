@@ -36,6 +36,7 @@ export const AppProvider = ({ children }: any) => {
       setAuthenticated(false);
       router.push("/sign-in");
     },
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {

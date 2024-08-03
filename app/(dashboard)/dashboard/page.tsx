@@ -11,13 +11,21 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { Chart, ArcElement } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import { axiosWithAuth } from "@/app/utils/axiosInstance";
 import { useQuery } from "react-query";
 import useWebSocket from "@/app/hooks/useWebSocket";
 import { formatTime } from "@/app/utils/common/date";
+import { useRouter } from "next/navigation";
+import moment from "moment";
 
 const data = {
   labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
@@ -52,11 +60,31 @@ const textCenter = {
 };
 
 export default function Page() {
-  const [clientSide, setClientSide] = useState(false);
-  const [limit, setLimit] = useState(5);
+  const [newMessage, setNewMessage] = useState<string>("");
+  const [messages, setMessages] = useState<any>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [limit, setLimit] = useState(8);
   const [page, setPage] = useState(1);
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
+  const observer = useRef<IntersectionObserver | null>(null);
+  const [rendered, setRendered] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(true);
+
+  const [clientSide, setClientSide] = useState(false);
+  const router = useRouter();
   const chartRef = useRef(null);
-  const team_id = 2;
+  const [team_id, setTeam_id] = useState(
+    localStorage.getItem("instanceSelected")
+  );
+
+  useEffect(() => {
+    const storedTeamId = localStorage.getItem("instanceSelected");
+    setTeam_id(storedTeamId);
+
+    if (!storedTeamId) {
+      router.push("teams");
+    }
+  }, [router]);
 
   const fetchTotalTeam = () => {
     return axiosWithAuth
@@ -97,34 +125,73 @@ export default function Page() {
     data: totalTeam,
     isLoading: isLoadingTeam,
     isError: isErrorTeam,
-  } = useQuery("totalTeam", fetchTotalTeam);
+  } = useQuery("totalTeam", fetchTotalTeam, { refetchOnWindowFocus: false });
   const {
     data: totalMember,
     isLoading: isLoadingMembers,
     isError: isErrorMembers,
-  } = useQuery("totalMember", fetchTotalMember);
+  } = useQuery("totalMember", fetchTotalMember, {
+    refetchOnWindowFocus: false,
+  });
   const {
     data: dataTask,
     isLoading: isLoadingDataTask,
     isError: isErrorDataTask,
-  } = useQuery("dataTask", fetchDataTask);
+  } = useQuery("dataTask", fetchDataTask, { refetchOnWindowFocus: false });
   const {
     data: dataMessage,
     isLoading: isLoadingDataMessage,
     isError: isErrorDataMessage,
-  } = useQuery<string[], Error>(["dataMessage", page, limit], () =>
-    fetchDataMessage(page, limit)
+    isFetching,
+  } = useQuery<string[], Error>(
+    ["dataMessage", page, limit],
+    () => fetchDataMessage(page, limit),
+    {
+      onSuccess: (newData) => {
+        newData = newData.reverse();
+        setMessages((prevMessages: any) => [...newData, ...prevMessages]);
+        setHasMore(newData.length > 0);
+        setRendered(true);
+      },
+      refetchOnWindowFocus: false,
+    }
   );
   const {
     data: dataUserActive,
     isLoading: isLoadingDataUserActive,
     isError: isErrorDataUserActive,
-  } = useQuery("dataUserActive", fetchDataUserActive);
+  } = useQuery("dataUserActive", fetchDataUserActive, {
+    refetchOnWindowFocus: false,
+  });
 
   const { sendMessage, status } = useWebSocket({
     url: "http://localhost:3000",
     queryKey: "dataMessage",
   });
+
+  const firstMessageElementRef = useCallback(
+    (node: HTMLDivElement) => {
+      if (isFetching || !rendered) return;
+      if (observer.current) observer.current.disconnect();
+
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          // console.log("has change");
+          setPage((prevPage) => prevPage + 1);
+        }
+      });
+
+      if (node) observer.current.observe(node);
+    },
+    [isFetching, hasMore, rendered]
+  );
+
+  useLayoutEffect(() => {
+    if (initialLoad && messages.length > 0) {
+      chatEndRef?.current?.scrollIntoView({ behavior: "auto" });
+      setInitialLoad(false); // Set to false after the first scroll
+    }
+  }, [messages, initialLoad]);
 
   const matrix_1 = [
     {
@@ -324,8 +391,15 @@ export default function Page() {
           <div className="2xl:p-5 xl:p-3 pb-14 w-full bg-emerald-100 bg-opacity-15 border relative flex-1 overflow-hidden">
             <div className="max-h-full overflow-y-scroll w-scroll-3">
               {/* list chat */}
-              {dataMessage?.map((data: any, index) => (
+              {messages?.map((data: any, index: any) => (
                 <div
+                  ref={
+                    index === messages.length - 1
+                      ? chatEndRef
+                      : index == 0
+                      ? firstMessageElementRef
+                      : null
+                  }
                   key={index}
                   className={`${
                     index % 2 === 0 ? "chat chat-end" : "chat chat-start"
@@ -341,8 +415,8 @@ export default function Page() {
                   </div>
                   <div className="chat-header text-xs mr-2 mb-1">
                     {data?.user?.fullname}
-                    <time className="text-xs opacity-50">
-                      {formatTime(data?.createdAt)}
+                    <time className="text-xs opacity-50 ml-1">
+                      {moment(data?.createdAt).format("h:mm:ss")}
                     </time>
                   </div>
                   <div className="chat-bubble text-sm bg-[#286E6A]">
@@ -354,28 +428,39 @@ export default function Page() {
                 </div>
               ))}
             </div>
-            <div className="absolute bottom-0 left-0 w-full p-1">
-              <div className="rounded-md w-full">
-                <div className="relative w-full h-full">
-                  <input
-                    type="text"
-                    placeholder="Type here"
-                    className="input input-bordered focus:outline-none focus:border-emerald-700 w-full rounded-md"
-                  />
-                  <div className="absolute top-0 right-2 h-full flex items-center">
-                    <button className="p-1.5 bg-[#286E6A] rounded-md">
-                      <svg
-                        className="fill-white"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 256 256"
-                        id="Flat"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path d="M231.626,128a16.015,16.015,0,0,1-8.18262,13.96094L54.53027,236.55273a15.87654,15.87654,0,0,1-18.14648-1.74023,15.87132,15.87132,0,0,1-4.74024-17.60156L60.64746,136H136a8,8,0,0,0,0-16H60.64746L31.64355,38.78906A16.00042,16.00042,0,0,1,54.5293,19.44727l168.915,94.59179A16.01613,16.01613,0,0,1,231.626,128Z" />
-                      </svg>
-                    </button>
-                  </div>
+          </div>
+          <div className="bottom-0 left-0 w-full p-1">
+            <div className="rounded-md w-full">
+              <div className="relative w-full h-full">
+                <input
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  type="text"
+                  placeholder="Type here"
+                  className="input input-bordered focus:outline-none focus:border-emerald-700 w-full rounded-md"
+                />
+                <div className="absolute top-0 right-2 h-full flex items-center">
+                  <button
+                    onClick={() => {
+                      let parsingMessage = newMessage?.trim();
+
+                      if (parsingMessage && team_id && parsingMessage != "") {
+                        sendMessage(parsingMessage, +team_id);
+                      }
+                    }}
+                    className="p-1.5 bg-[#286E6A] rounded-md"
+                  >
+                    <svg
+                      className="fill-white"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 256 256"
+                      id="Flat"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M231.626,128a16.015,16.015,0,0,1-8.18262,13.96094L54.53027,236.55273a15.87654,15.87654,0,0,1-18.14648-1.74023,15.87132,15.87132,0,0,1-4.74024-17.60156L60.64746,136H136a8,8,0,0,0,0-16H60.64746L31.64355,38.78906A16.00042,16.00042,0,0,1,54.5293,19.44727l168.915,94.59179A16.01613,16.01613,0,0,1,231.626,128Z" />
+                    </svg>
+                  </button>
                 </div>
               </div>
             </div>
