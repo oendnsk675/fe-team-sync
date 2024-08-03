@@ -1,0 +1,5 @@
+export type ROLE = {
+  AUTHOR: "AUTHOR";
+  MAINTENER: "MAINTENER";
+  DEVELOPER: "DEVELOPER";
+};

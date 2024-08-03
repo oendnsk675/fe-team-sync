@@ -22,7 +22,18 @@ export default function Modal({ open, close, children }: Props) {
       id="my_modal_5"
       className="modal modal-bottom sm:modal-middle"
     >
-      <div className="modal-box">{children}</div>
+      <div className="modal-box" style={{ overflow: "initial" }}>
+        <form method="dialog">
+          {/* if there is a button in form, it will close the modal */}
+          <button
+            onClick={() => close(false)}
+            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+          >
+            ✕
+          </button>
+        </form>
+        <div className="mt-4">{children}</div>
+      </div>
       <form method="dialog" className="modal-backdrop">
         <button onClick={() => close(false)} className="cursor-default">
           close
