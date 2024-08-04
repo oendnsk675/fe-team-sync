@@ -1,8 +1,14 @@
+"use client";
+
 import React from "react";
 import Breadcrumbs from "@/app/components/breadcrumbs";
 import Avatar from "@/app/components/avatar";
+import { formatAvatarImage, loadAvatarImage } from "@/app/utils/common/image";
+import { useUser } from "@/app/stores/userStore";
 
 function MainLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const user = useUser();
+
   return (
     <div className=" px-8">
       {/* header layout */}
@@ -12,9 +18,15 @@ function MainLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 
         {/* Avatar */}
         <Avatar
-          name="sayidina ahmadal qososyi"
-          username="oslab"
-          img="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+          name={user.fullname}
+          username={user.username}
+          img={
+            user.avatar == ""
+              ? loadAvatarImage(user, 45)
+              : formatAvatarImage(user.avatar)
+          }
+          width={45}
+          height={45}
         />
       </div>
 

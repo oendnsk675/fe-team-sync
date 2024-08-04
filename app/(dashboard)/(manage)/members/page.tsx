@@ -56,9 +56,7 @@ export default function Page() {
     return axiosWithAuth
       .post(`team/member/invite`, data)
       .then(({ data }) => data.data)
-      .catch((error) => {
-        toast.error(error.response.data.message);
-      });
+      .catch((error) => error.response.data.message);
   };
 
   const fetchUsers = async (query: any) => {
