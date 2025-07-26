@@ -2,8 +2,10 @@ import { faUserNinja } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
 import useSearch from "../hooks/useSearch";
+import Image from "next/image";
+import { formatImage, loadAvatarImage } from "../utils/common/image";
 
-const SelectSearch = ({ onSearch, data, isLoading, onSelectedUser }) => {
+const SelectSearch = ({ onSearch, data, isLoading, onSelectedUser }: any) => {
   const { query, setQuery, isFocused, setIsFocused } = useSearch(onSearch);
   const [selectedUser, setSelectedUser] = useState([]);
   const containerRef = useRef(null);
@@ -49,6 +51,13 @@ const SelectSearch = ({ onSearch, data, isLoading, onSelectedUser }) => {
     });
   };
 
+  // Tambahkan fungsi untuk menangani penekanan tombol
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Mencegah aksi default Enter
+    }
+  };
+
   return (
     <div className="w-full relative" ref={containerRef}>
       <div className="w-full h-full overflow-x-auto border border-slate-400 rounded relative flex">
@@ -73,9 +82,11 @@ const SelectSearch = ({ onSearch, data, isLoading, onSelectedUser }) => {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsFocused(true)}
+          onKeyDown={handleKeyDown}
           className="input input-sm focus:outline-none border-none input-primary w-full h-auto px-1"
         />
       </div>
+
       {isFocused && (
         <div className="absolute bottom-[-11.3rem] w-full rounded h-[11rem] z-50 bg-white border border-slate-400 flex flex-col">
           {/* header*/}
@@ -102,18 +113,38 @@ const SelectSearch = ({ onSearch, data, isLoading, onSelectedUser }) => {
             ) : (
               data?.map((user: any, index: number) => (
                 <button
+                  disabled={user.hasInvited}
                   onClick={(e) => toggleUserSelection(user, e)}
                   className={`flex gap-3 hover:bg-emerald-200/50 transition duration-100 w-full border-b p-2 pb-2 ${
-                    selectedUser.includes(user) ? "bg-emerald-200/50" : ""
-                  }`}
+                    selectedUser.includes(user) || user.hasInvited
+                      ? "bg-emerald-200/50"
+                      : ""
+                  } ${user.hasInvited ? "cursor-not-allowed" : ""}`}
                   key={index}
                 >
-                  <div className="w-8 h-8 rounded bg-emerald-400"></div>
-                  <div className="flex flex-col text-xs">
-                    <span className="text-start">{user.fullname}</span>
-                    <span className="opacity-45 text-start">
-                      @{user.username}
-                    </span>
+                  <div className="w-8 h-8 rounded bg-emerald-400 relative">
+                    <Image
+                      src={
+                        user.avatar == ""
+                          ? loadAvatarImage(user, 45)
+                          : formatImage(user.avatar, "avatars")
+                      }
+                      fill
+                      alt="user avatar"
+                    />
+                  </div>
+                  <div className="w-full flex justify-between items-center">
+                    <div className="flex flex-col text-xs">
+                      <span className="text-start">{user.fullname}</span>
+                      <span className="opacity-45 text-start">
+                        @{user.username}
+                      </span>
+                    </div>
+                    {user?.hasInvited && (
+                      <span className="badge badge-success   p-2 badge-xs mr-2">
+                        Invited
+                      </span>
+                    )}
                   </div>
                 </button>
               ))

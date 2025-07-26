@@ -165,24 +165,15 @@ export default function Page() {
               </tbody>
             </table>
           </div>
-          {/* metadata */}
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="font-light">
-                Total <span className="font-semibold">10</span> data dari{" "}
-                <span className="font-semibold">20</span>
-              </span>
-            </div>
-            {/* paggination */}
-            <Pagination
-              page={+teams.page}
-              totalPages={+teams.totalPages}
-              onPageChange={(newPage) => {
-                localStorage.setItem("page", String(newPage));
-                queryClient.invalidateQueries(["teams"]);
-              }}
-            />
-          </div>
+          {/* metadata pagination */}
+          <Pagination
+            page={+teams.page}
+            totalPages={+teams.totalPages}
+            onPageChange={(newPage) => {
+              localStorage.setItem("page", String(newPage));
+              queryClient.invalidateQueries(["teams"]);
+            }}
+          />
         </div>
       )}
     </div>

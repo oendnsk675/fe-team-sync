@@ -69,6 +69,15 @@
   background-color: #333; /* Warna pegangan saat sedang di-drag */
 }
 
+.ce-block__content,
+.ce-toolbar__content {
+  max-width: 100% !important;
+}
+
+.avatar.online:before {
+  z-index: 0;
+}
+
 .chat .chat-bubble {
   width: 100%;
 }

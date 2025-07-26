@@ -1,5 +1,13 @@
-"use client";
+'use client';
 
+import useWebSocket from '@/app/hooks/useWebSocket';
+import {
+  Message,
+  useMessages,
+  useUser,
+  useUserActions,
+} from '@/app/stores/userStore';
+import { axiosWithAuth } from '@/app/utils/axiosInstance';
 import {
   faCalendar,
   faEllipsisVertical,
@@ -8,60 +16,59 @@ import {
   faPeopleGroup,
   faRocket,
   faUserGroup,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Image from "next/image";
-import React, {
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ArcElement, Chart } from 'chart.js';
+import moment from 'moment';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import {
   useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
-} from "react";
-import { Chart, ArcElement } from "chart.js";
-import { Doughnut } from "react-chartjs-2";
-import { axiosWithAuth } from "@/app/utils/axiosInstance";
-import { useQuery } from "react-query";
-import useWebSocket from "@/app/hooks/useWebSocket";
-import { formatTime } from "@/app/utils/common/date";
-import { useRouter } from "next/navigation";
-import moment from "moment";
+} from 'react';
+import { Doughnut } from 'react-chartjs-2';
+import { useQuery } from 'react-query';
 
 const data = {
-  labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+  labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
   datasets: [
     {
-      label: "# of Votes",
+      label: '# of Votes',
       data: [12, 19, 3, 5],
       backgroundColor: [
-        "rgb(40,110,106)",
-        "rgb(123,205,200)",
-        "rgb(67,184,177)",
-        "rgb(54,147,142)",
+        'rgb(40,110,106)',
+        'rgb(123,205,200)',
+        'rgb(67,184,177)',
+        'rgb(54,147,142)',
       ],
     },
   ],
 };
 
 const textCenter = {
-  id: "textCenter",
+  id: 'textCenter',
   beforeDraw: function (chart: any) {
     const { ctx, data } = chart;
 
     ctx.save();
-    ctx.font = "bolder 24px sans-serif";
+    ctx.font = 'bolder 24px sans-serif';
     // ctx.fillStyle = "red";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
     const centerX = (chart.chartArea.left + chart.chartArea.right) / 2 - 4;
     const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
-    ctx.fillText("Test", centerX, centerY);
+    ctx.fillText('Test', centerX, centerY);
   },
 };
 
 export default function Page() {
-  const [newMessage, setNewMessage] = useState<string>("");
-  const [messages, setMessages] = useState<any>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const user = useUser();
+  const messages = useMessages();
+  const { setMessages } = useUserActions();
   const [hasMore, setHasMore] = useState(true);
   const [limit, setLimit] = useState(8);
   const [page, setPage] = useState(1);
@@ -74,21 +81,21 @@ export default function Page() {
   const router = useRouter();
   const chartRef = useRef(null);
   const [team_id, setTeam_id] = useState(
-    localStorage.getItem("instanceSelected")
+    localStorage.getItem('instanceSelected')
   );
 
   useEffect(() => {
-    const storedTeamId = localStorage.getItem("instanceSelected");
+    const storedTeamId = localStorage.getItem('instanceSelected');
     setTeam_id(storedTeamId);
 
     if (!storedTeamId) {
-      router.push("teams");
+      router.push('teams');
     }
   }, [router]);
 
   const fetchTotalTeam = () => {
     return axiosWithAuth
-      .get("team/count")
+      .get('team/count')
       .then(({ data }) => data.data.total)
       .catch((error) => {});
   };
@@ -102,7 +109,7 @@ export default function Page() {
 
   const fetchDataTask = () => {
     return axiosWithAuth
-      .get("task/count")
+      .get('task/count')
       .then(({ data }) => data.data)
       .catch((error) => {});
   };
@@ -125,31 +132,31 @@ export default function Page() {
     data: totalTeam,
     isLoading: isLoadingTeam,
     isError: isErrorTeam,
-  } = useQuery("totalTeam", fetchTotalTeam, { refetchOnWindowFocus: false });
+  } = useQuery('totalTeam', fetchTotalTeam, { refetchOnWindowFocus: false });
   const {
     data: totalMember,
     isLoading: isLoadingMembers,
     isError: isErrorMembers,
-  } = useQuery("totalMember", fetchTotalMember, {
+  } = useQuery('totalMember', fetchTotalMember, {
     refetchOnWindowFocus: false,
   });
   const {
     data: dataTask,
     isLoading: isLoadingDataTask,
     isError: isErrorDataTask,
-  } = useQuery("dataTask", fetchDataTask, { refetchOnWindowFocus: false });
+  } = useQuery('dataTask', fetchDataTask, { refetchOnWindowFocus: false });
   const {
     data: dataMessage,
     isLoading: isLoadingDataMessage,
     isError: isErrorDataMessage,
     isFetching,
   } = useQuery<string[], Error>(
-    ["dataMessage", page, limit],
+    ['dataMessage', page, limit],
     () => fetchDataMessage(page, limit),
     {
       onSuccess: (newData) => {
         newData = newData.reverse();
-        setMessages((prevMessages: any) => [...newData, ...prevMessages]);
+        setMessages([...newData, ...messages] as Message[]);
         setHasMore(newData.length > 0);
         setRendered(true);
       },
@@ -160,13 +167,13 @@ export default function Page() {
     data: dataUserActive,
     isLoading: isLoadingDataUserActive,
     isError: isErrorDataUserActive,
-  } = useQuery("dataUserActive", fetchDataUserActive, {
+  } = useQuery('dataUserActive', fetchDataUserActive, {
     refetchOnWindowFocus: false,
   });
 
   const { sendMessage, status } = useWebSocket({
-    url: "http://localhost:3000",
-    queryKey: "dataMessage",
+    url: 'http://localhost:3000',
+    queryKey: 'dataMessage',
   });
 
   const firstMessageElementRef = useCallback(
@@ -187,29 +194,32 @@ export default function Page() {
   );
 
   useLayoutEffect(() => {
+    if (messages) {
+      setNewMessage('');
+      chatEndRef?.current?.scrollIntoView({ behavior: 'smooth' });
+    }
     if (initialLoad && messages.length > 0) {
-      chatEndRef?.current?.scrollIntoView({ behavior: "auto" });
       setInitialLoad(false); // Set to false after the first scroll
     }
   }, [messages, initialLoad]);
 
   const matrix_1 = [
     {
-      name: "team",
+      name: 'team',
       icon: faPeopleGroup,
-      label: "Total Team",
+      label: 'Total Team',
       value: `${totalTeam} Team`,
     },
     {
-      name: "member",
+      name: 'member',
       icon: faUserGroup,
-      label: "Total Member",
+      label: 'Total Member',
       value: `${totalMember} Member`,
     },
     {
-      name: "avg",
+      name: 'avg',
       icon: faGaugeSimple,
-      label: "Avg. Access Time",
+      label: 'Avg. Access Time',
       value: `${0} Minute`,
     },
   ];
@@ -240,7 +250,7 @@ export default function Page() {
               <div className="w-8 rounded">
                 <Image
                   src={
-                    "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
+                    'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg'
                   }
                   alt="avatar"
                   layout="fill"
@@ -370,17 +380,17 @@ export default function Page() {
             <div className="flex gap-4 items-center">
               <div
                 className={`w-2 h-2 rounded-full ${
-                  status == "Connected"
-                    ? "bg-emerald-500"
-                    : status == "Failed to connect"
-                    ? "bg-red-500"
-                    : "bg-slate-500"
+                  status == 'Connected'
+                    ? 'bg-emerald-500'
+                    : status == 'Failed to connect'
+                    ? 'bg-red-500'
+                    : 'bg-slate-500'
                 }`}
               ></div>
               <span className="text-sm opacity-75">
-                {dataUserActive?.totalUser} {"/"}
-                {dataUserActive?.totalUserActive}{" "}
-                {status == "Connected" ? "Online" : "Offline"}
+                {dataUserActive?.totalUser} {'/'}
+                {dataUserActive?.totalUserActive}{' '}
+                {status == 'Connected' ? 'Online' : 'Offline'}
               </span>
               <FontAwesomeIcon
                 className="text-slate-500 cursor-pointer hover:opacity-70 transition-all duration-150"
@@ -391,42 +401,51 @@ export default function Page() {
           <div className="2xl:p-5 xl:p-3 pb-14 w-full bg-emerald-100 bg-opacity-15 border relative flex-1 overflow-hidden">
             <div className="max-h-full overflow-y-scroll w-scroll-3">
               {/* list chat */}
-              {messages?.map((data: any, index: any) => (
-                <div
-                  ref={
-                    index === messages.length - 1
-                      ? chatEndRef
-                      : index == 0
-                      ? firstMessageElementRef
-                      : null
-                  }
-                  key={index}
-                  className={`${
-                    index % 2 === 0 ? "chat chat-end" : "chat chat-start"
-                  }`}
-                >
-                  <div className="chat-image avatar">
-                    <div className="w-10 rounded-full">
-                      <img
-                        alt="Tailwind CSS chat bubble component"
-                        src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
-                      />
+              {user &&
+                messages &&
+                messages?.map((data: Message, index: any) => (
+                  <div
+                    ref={
+                      index === messages.length - 1
+                        ? chatEndRef
+                        : index == 0
+                        ? firstMessageElementRef
+                        : null
+                    }
+                    key={index}
+                    className={`${
+                      user?.user_id === data.user_id
+                        ? 'chat chat-end'
+                        : 'chat chat-start'
+                    }`}
+                  >
+                    <div className="chat-image avatar">
+                      <div className="w-10 h-10 rounded-full overflow-hidden">
+                        <Image
+                          src={
+                            'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg'
+                          }
+                          alt="avatar"
+                          layout="fill"
+                          objectFit="cover"
+                          className="!relative"
+                        />
+                      </div>
+                    </div>
+                    <div className="chat-header text-xs mr-2 mb-1">
+                      {data?.user?.fullname}
+                      <time className="text-xs opacity-50 ml-1">
+                        {moment(data?.createdAt).format('h:mm:ss')}
+                      </time>
+                    </div>
+                    <div className="chat-bubble text-sm bg-[#286E6A]">
+                      {data?.message}
+                    </div>
+                    <div className="chat-footer opacity-50 text-xs hidden">
+                      Delivered
                     </div>
                   </div>
-                  <div className="chat-header text-xs mr-2 mb-1">
-                    {data?.user?.fullname}
-                    <time className="text-xs opacity-50 ml-1">
-                      {moment(data?.createdAt).format("h:mm:ss")}
-                    </time>
-                  </div>
-                  <div className="chat-bubble text-sm bg-[#286E6A]">
-                    {data?.message}
-                  </div>
-                  <div className="chat-footer opacity-50 text-xs hidden">
-                    Delivered
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
           <div className="bottom-0 left-0 w-full p-1">
@@ -444,7 +463,7 @@ export default function Page() {
                     onClick={() => {
                       let parsingMessage = newMessage?.trim();
 
-                      if (parsingMessage && team_id && parsingMessage != "") {
+                      if (parsingMessage && team_id && parsingMessage != '') {
                         sendMessage(parsingMessage, +team_id);
                       }
                     }}

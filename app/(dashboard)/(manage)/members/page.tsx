@@ -1,22 +1,16 @@
 "use client";
 
-import {
-  useInstanceSelected,
-  useUser,
-  useUserActions,
-} from "@/app/stores/userStore";
+import { useUser } from "@/app/stores/userStore";
 import { axiosWithAuth } from "@/app/utils/axiosInstance";
 import {
   faFilter,
   faMagnifyingGlass,
   faUserAstronaut,
-  faUserNinja,
   faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { error } from "console";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import { toast } from "react-toastify";
 import Pagination from "@/app/components/paggination";
@@ -24,15 +18,11 @@ import queryClient from "@/app/utils/queryClient";
 import moment from "moment";
 import AlertCustom from "@/app/components/alert";
 import Modal from "@/app/components/modal";
-import CustomSearch from "@/app/components/customSearch";
 import SelectSearch from "@/app/components/selectSearch";
 
 export default function Page() {
-  const [instanceSelected, setInstanceSelected] = useState<string | null>(
-    localStorage.getItem("instanceSelected")
-  );
-  const [selectedUsers, setSelectedUsers] = useState([]);
   const user = useUser();
+  const [selectedUsers, setSelectedUsers] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -41,6 +31,8 @@ export default function Page() {
   };
 
   const handleCloseModal = (state: boolean) => {
+    console.log(searchQuery);
+
     setModalOpen(state);
   };
 
@@ -80,6 +72,7 @@ export default function Page() {
   });
 
   const handleSearch = (query: any) => {
+    // alert(query);
     setSearchQuery(query);
   };
 

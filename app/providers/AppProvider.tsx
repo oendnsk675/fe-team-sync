@@ -14,6 +14,18 @@ export const AppProvider = ({ children }: any) => {
   const { setUser, setInstance } = useUserActions();
   const instanceSelected = useInstanceSelected();
 
+  const fetchProfile = async () => {
+    return await axiosWithAuth
+      .get("/user/profile")
+      .then(({ data }) => data)
+      .catch(({ response }) => {
+        if (response.status == 401) {
+          router.push("/sign-in");
+          throw new Error(response.data.message);
+        }
+      });
+  };
+
   const {
     data: userProfile,
     isLoading,
@@ -41,6 +53,8 @@ export const AppProvider = ({ children }: any) => {
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
+    localStorage.setItem("page", "1");
+    localStorage.removeItem("filter");
     let instanceSelectedLS = localStorage.getItem("instanceSelected");
 
     if (!instanceSelected && pathname !== "/teams/add") {
@@ -52,7 +66,6 @@ export const AppProvider = ({ children }: any) => {
     }
     if (!token) {
       router.replace("/sign-in");
-      setAuthenticated(false);
     }
   }, [pathname]);
 
@@ -65,9 +78,4 @@ export const AppProvider = ({ children }: any) => {
   }
 
   return <div className="xl:text-sm 2xl:text-base">{children}</div>;
-};
-
-const fetchProfile = async () => {
-  const response = await axiosWithAuth.get("/user/profile");
-  return response.data;
 };

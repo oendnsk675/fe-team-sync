@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useUser } from "@/app/stores/userStore";
 import { InputComponent } from "@/app/components/formComponent";
-import { formatAvatarImage, loadAvatarImage } from "@/app/utils/common/image";
+import { formatImage, loadAvatarImage } from "@/app/utils/common/image";
 import { useMutation } from "react-query";
 import { axiosWithAuth } from "@/app/utils/axiosInstance";
 import { toast } from "react-toastify";
@@ -256,7 +256,7 @@ export default function Page() {
                             newImagePath == ""
                               ? user.avatar == ""
                                 ? loadAvatarImage(user, 56)
-                                : formatAvatarImage(user.avatar)
+                                : formatImage(user.avatar, "avatars")
                               : newImagePath
                           }
                           width={"56"}

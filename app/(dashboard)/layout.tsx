@@ -13,7 +13,7 @@ function MainLayout({ children }: Readonly<{ children: React.ReactNode }>) {
       <AppProvider>
         <div className="flex bg-base-200">
           <Sidebar />
-          <div className="2xl:w-[15%] lg:w-[20%]"></div>
+          <div className="2xl:w-[15%] lg:w-[18%]"></div>
           <main className="2xl:p-6 xl:px-2 xl:py-5 flex-1 relative h-screen overflow-y-auto">
             {children}
           </main>

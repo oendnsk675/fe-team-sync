@@ -3,12 +3,20 @@ import React from "react";
 type PType = {
   page: number;
   totalPages: number;
+  totalData: number;
+  total?: number;
   onPageChange: (newPage: number) => void;
 };
 
-const Pagination = ({ page, totalPages, onPageChange }: PType) => {
+const Pagination = ({
+  page,
+  totalPages,
+  onPageChange,
+  totalData,
+  total, // for current page
+}: PType) => {
   const handleClick = (newPage: number) => {
-    console.log(newPage, page, "sad");
+    // console.log(newPage, page, "sad");
 
     if (newPage > 0 && newPage <= totalPages) {
       onPageChange(newPage);
@@ -34,22 +42,33 @@ const Pagination = ({ page, totalPages, onPageChange }: PType) => {
   };
 
   return (
-    <div className="join">
-      <button
-        className="join-item hover:bg-emerald-300/50 btn bg-white"
-        onClick={() => handleClick(page - 1)}
-        disabled={page === 1}
-      >
-        «
-      </button>
-      {renderPageButtons()}
-      <button
-        className="join-item hover:bg-emerald-300/50 btn bg-white"
-        onClick={() => handleClick(page + 1)}
-        disabled={page === totalPages}
-      >
-        »
-      </button>
+    <div className="flex items-center justify-between mt-5">
+      <div>
+        <span className="font-light">
+          Total <span className="font-semibold">{total}</span> from{" "}
+          <span className="font-semibold">{totalData}</span>
+        </span>
+      </div>
+      {/* paggination */}
+      <div className="">
+        <div className="join">
+          <button
+            className="join-item hover:bg-emerald-300/50 btn bg-white"
+            onClick={() => handleClick(page - 1)}
+            disabled={page === 1}
+          >
+            «
+          </button>
+          {renderPageButtons()}
+          <button
+            className="join-item hover:bg-emerald-300/50 btn bg-white"
+            onClick={() => handleClick(page + 1)}
+            disabled={page === totalPages}
+          >
+            »
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
