@@ -1,46 +1,46 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import Column from "./column";
-import { useQuery } from "react-query";
-import { axiosWithAuth } from "@/app/utils/axiosInstance";
-import { useTaskActions } from "@/app/stores/taskStore";
-import { useParams } from "next/navigation";
+import { useTaskActions } from '@/app/stores/taskStore';
+import { axiosWithAuth } from '@/app/utils/axiosInstance';
+import { useParams } from 'next/navigation';
+import { useState } from 'react';
+import { useQuery } from 'react-query';
+import Column from './column';
 
 const DEFAULT_CARDS = [
   // BACKLOG
-  { title: "Look into render bug in dashboard", id: "1", column: "backlog" },
-  { title: "SOX compliance checklist", id: "2", column: "backlog" },
-  { title: "[SPIKE] Migrate to Azure", id: "3", column: "backlog" },
-  { title: "Document Notifications service", id: "4", column: "backlog" },
+  { title: 'Look into render bug in dashboard', id: '1', column: 'backlog' },
+  { title: 'SOX compliance checklist', id: '2', column: 'backlog' },
+  { title: '[SPIKE] Migrate to Azure', id: '3', column: 'backlog' },
+  { title: 'Document Notifications service', id: '4', column: 'backlog' },
   // TODO
   {
-    title: "Research DB options for new microservice",
-    id: "5",
-    column: "todo",
+    title: 'Research DB options for new microservice',
+    id: '5',
+    column: 'todo',
   },
-  { title: "Postmortem for outage", id: "6", column: "todo" },
-  { title: "Sync with product on Q3 roadmap", id: "7", column: "todo" },
+  { title: 'Postmortem for outage', id: '6', column: 'todo' },
+  { title: 'Sync with product on Q3 roadmap', id: '7', column: 'todo' },
 
   // DOING
   {
-    title: "Refactor context providers to use Zustand",
-    id: "8",
-    column: "doing",
+    title: 'Refactor context providers to use Zustand',
+    id: '8',
+    column: 'doing',
   },
-  { title: "Add logging to daily CRON", id: "9", column: "doing" },
+  { title: 'Add logging to daily CRON', id: '9', column: 'doing' },
   // DONE
   {
-    title: "Set up DD dashboards for Lambda listener",
-    id: "10",
-    column: "done",
+    title: 'Set up DD dashboards for Lambda listener',
+    id: '10',
+    column: 'done',
   },
 ];
 
 export default function Board() {
   const [cards, setCards] = useState([]);
   const { setTask } = useTaskActions();
-  const { "project-id": project_id } = useParams();
+  const { 'project-id': project_id } = useParams();
 
   const fetchData = async () => {
     return await axiosWithAuth
@@ -49,9 +49,9 @@ export default function Board() {
       .catch();
   };
 
-  const { data, isLoading } = useQuery("taskKey", fetchData, {
+  const { data, isLoading } = useQuery('taskKey', fetchData, {
     onSuccess: (data: any) => {
-      let taskId = localStorage.getItem("taskIdSelected");
+      let taskId = localStorage.getItem('taskIdSelected');
       let task = data.filter(
         (data_: any) => String(data_.taskId) == String(taskId)
       );
@@ -61,33 +61,32 @@ export default function Board() {
       }
       setCards(data);
     },
-    refetchOnWindowFocus: false,
   });
 
   let columns = [
     {
       id: Math.random().toString(),
-      title: "Backlog",
-      column: "backlog",
-      headingColor: "text-neutral-500",
+      title: 'Backlog',
+      column: 'backlog',
+      headingColor: 'text-neutral-500',
     },
     {
       id: Math.random().toString(),
-      title: "Todo",
-      column: "todo",
-      headingColor: "text-yellow-500",
+      title: 'Todo',
+      column: 'todo',
+      headingColor: 'text-yellow-500',
     },
     {
       id: Math.random().toString(),
-      title: "In progress",
-      column: "doing",
-      headingColor: "text-blue-500",
+      title: 'In progress',
+      column: 'doing',
+      headingColor: 'text-blue-500',
     },
     {
       id: Math.random().toString(),
-      title: "Complete",
-      column: "done",
-      headingColor: "text-emerald-500",
+      title: 'Complete',
+      column: 'done',
+      headingColor: 'text-emerald-500',
     },
   ];
 

@@ -1,11 +1,10 @@
-"use client";
+'use client';
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { useQuery } from "react-query";
-import { axiosWithAuth } from "../utils/axiosInstance";
-import { usePathname, useRouter } from "next/navigation";
-import queryClient from "../utils/queryClient";
-import { useInstanceSelected, useUserActions } from "../stores/userStore";
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useQuery } from 'react-query';
+import { useInstanceSelected, useUserActions } from '../stores/userStore';
+import { axiosWithAuth } from '../utils/axiosInstance';
 
 export const AppProvider = ({ children }: any) => {
   const router = useRouter();
@@ -16,11 +15,11 @@ export const AppProvider = ({ children }: any) => {
 
   const fetchProfile = async () => {
     return await axiosWithAuth
-      .get("/user/profile")
+      .get('/user/profile')
       .then(({ data }) => data)
       .catch(({ response }) => {
         if (response.status == 401) {
-          router.push("/sign-in");
+          router.push('/sign-in');
           throw new Error(response.data.message);
         }
       });
@@ -30,15 +29,15 @@ export const AppProvider = ({ children }: any) => {
     data: userProfile,
     isLoading,
     isError,
-  } = useQuery("profile", fetchProfile, {
+  } = useQuery('profile', fetchProfile, {
     onSuccess: ({ data }) => {
-      let instanceSelectedLS = localStorage.getItem("instanceSelected");
+      let instanceSelectedLS = localStorage.getItem('instanceSelected');
       setUser(data);
       setAuthenticated(true);
 
-      if (!instanceSelected && pathname !== "/teams/add") {
+      if (!instanceSelected && pathname !== '/teams/add') {
         if (!instanceSelectedLS) {
-          router.push("/teams");
+          router.push('/teams');
         } else {
           setInstance(instanceSelectedLS);
         }
@@ -46,26 +45,25 @@ export const AppProvider = ({ children }: any) => {
     },
     onError: () => {
       setAuthenticated(false);
-      router.push("/sign-in");
+      router.push('/sign-in');
     },
-    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    localStorage.setItem("page", "1");
-    localStorage.removeItem("filter");
-    let instanceSelectedLS = localStorage.getItem("instanceSelected");
+    const token = localStorage.getItem('access_token');
+    localStorage.setItem('page', '1');
+    localStorage.removeItem('filter');
+    let instanceSelectedLS = localStorage.getItem('instanceSelected');
 
-    if (!instanceSelected && pathname !== "/teams/add") {
+    if (!instanceSelected && pathname !== '/teams/add') {
       if (!instanceSelectedLS) {
-        router.push("/teams");
+        router.push('/teams');
       } else {
         setInstance(instanceSelectedLS);
       }
     }
     if (!token) {
-      router.replace("/sign-in");
+      router.replace('/sign-in');
     }
   }, [pathname]);
 

@@ -5,6 +5,7 @@ export type Message = {
   id?: string;
   message: string;
   user_id?: any;
+  user?: any;
   status?: boolean;
   createdAt?: string;
 };

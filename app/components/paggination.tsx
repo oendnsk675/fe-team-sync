@@ -1,9 +1,7 @@
-import React from "react";
-
 type PType = {
   page: number;
   totalPages: number;
-  totalData: number;
+  totalData?: number;
   total?: number;
   onPageChange: (newPage: number) => void;
 };
@@ -13,7 +11,7 @@ const Pagination = ({
   totalPages,
   onPageChange,
   totalData,
-  total, // for current page
+  total,
 }: PType) => {
   const handleClick = (newPage: number) => {
     // console.log(newPage, page, "sad");
@@ -30,7 +28,7 @@ const Pagination = ({
         <button
           key={i}
           className={`join-item hover:bg-emerald-300/50 btn ${
-            page === i ? "bg-emerald-300/50" : "bg-white"
+            page === i ? 'bg-emerald-300/50' : 'bg-white'
           }`}
           onClick={() => handleClick(i)}
         >
@@ -45,7 +43,7 @@ const Pagination = ({
     <div className="flex items-center justify-between mt-5">
       <div>
         <span className="font-light">
-          Total <span className="font-semibold">{total}</span> from{" "}
+          Total <span className="font-semibold">{total}</span> from{' '}
           <span className="font-semibold">{totalData}</span>
         </span>
       </div>

@@ -1,0 +1,5 @@
+export const TEAM_ROLES = {
+  AUTHOR: 'AUTHOR',
+  MAINTAINER: 'MAINTAINER',
+  DEVELOPER: 'DEVELOPER',
+} as const;

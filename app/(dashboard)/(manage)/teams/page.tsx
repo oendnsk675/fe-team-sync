@@ -1,29 +1,32 @@
-"use client";
+'use client';
 
-import { useInstanceSelected, useUserActions } from "@/app/stores/userStore";
-import { axiosWithAuth } from "@/app/utils/axiosInstance";
+import Pagination from '@/app/components/paggination';
+import { TEAM_ROLES } from '@/app/shared/constant/team';
+import { AddMemberTeam } from '@/app/shared/types/team';
+import { useUser } from '@/app/stores/userStore';
+import { axiosWithAuth } from '@/app/utils/axiosInstance';
+import queryClient from '@/app/utils/queryClient';
 import {
   faFilter,
   faMagnifyingGlass,
   faSitemap,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { error } from "console";
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import { useQuery } from "react-query";
-import { toast } from "react-toastify";
-import Pagination from "@/app/components/paggination";
-import queryClient from "@/app/utils/queryClient";
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from 'next/link';
+import { useState } from 'react';
+import { useMutation, useQuery } from 'react-query';
+import { toast } from 'react-toastify';
 
 export default function Page() {
+  const user = useUser();
+
   const [instanceSelected, setInstanceSelected] = useState<string | null>(
-    localStorage.getItem("instanceSelected")
+    localStorage.getItem('instanceSelected')
   );
 
   const fetchTeam = () => {
-    let page = localStorage.getItem("page") || 1;
-    let limit = localStorage.getItem("limit") || 10;
+    let page = localStorage.getItem('page') || 1;
+    let limit = localStorage.getItem('limit') || 10;
 
     return axiosWithAuth
       .get(`teams?page=${page}&limit=${limit}`)
@@ -33,13 +36,39 @@ export default function Page() {
       });
   };
 
-  const { data: teams, isLoading } = useQuery(["teams"], fetchTeam);
+  const { data: teams, isLoading } = useQuery(['teams'], fetchTeam);
+
+  const addMemberTeam = async (payload: AddMemberTeam) => {
+    try {
+      const { data } = await axiosWithAuth.post('member/invite', payload);
+      return data.data;
+    } catch (error: any) {
+      throw error;
+    }
+  };
+  const { mutate } = useMutation(addMemberTeam, {
+    onSuccess: ({ data }) => {
+      console.log(data);
+
+      toast.success(data.message, {
+        autoClose: 2000,
+      });
+      localStorage.setItem('instanceSelected', data?.team_id.toString());
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message);
+    },
+  });
 
   function handleSelectInstance(instance: string): void {
     setInstanceSelected(instance);
     console.log(instanceSelected);
-
-    localStorage.setItem("instanceSelected", instance);
+    mutate({
+      team_id: +instance,
+      description: 'test',
+      role: TEAM_ROLES.DEVELOPER,
+      user_id: user?.user_id,
+    });
   }
 
   return (
@@ -60,7 +89,7 @@ export default function Page() {
           <div className="flex flex-col items-center gap-4">
             <FontAwesomeIcon icon={faSitemap} size="4x" />
             <Link
-              href={"/teams/add"}
+              href={'/teams/add'}
               className="btn btn-primary btn-sm px-10 rounded hover:opacity-75 transition-all duration-150 mt-4"
             >
               Add Team
@@ -108,7 +137,7 @@ export default function Page() {
                 </ul>
               </div>
               <Link
-                href={"/teams/add"}
+                href={'/teams/add'}
                 className="btn btn-accent btn-sm px-10 rounded hover:opacity-75 transition-all duration-150"
               >
                 Add Team
@@ -153,8 +182,8 @@ export default function Page() {
                           onClick={() => handleSelectInstance(team.team_id)}
                           className={`px-7 btn btn-sm  ${
                             instanceSelected == team.team_id
-                              ? "bg-accent text-white"
-                              : "btn-primary"
+                              ? 'bg-accent text-white'
+                              : 'btn-primary'
                           }`}
                         >
                           Select
@@ -170,8 +199,8 @@ export default function Page() {
             page={+teams.page}
             totalPages={+teams.totalPages}
             onPageChange={(newPage) => {
-              localStorage.setItem("page", String(newPage));
-              queryClient.invalidateQueries(["teams"]);
+              localStorage.setItem('page', String(newPage));
+              queryClient.invalidateQueries(['teams']);
             }}
           />
         </div>

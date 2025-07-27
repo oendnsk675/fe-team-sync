@@ -1,30 +1,30 @@
-"use client";
+'use client';
 
-import { useUser } from "@/app/stores/userStore";
-import { axiosWithAuth } from "@/app/utils/axiosInstance";
+import AlertCustom from '@/app/components/alert';
+import Modal from '@/app/components/modal';
+import Pagination from '@/app/components/paggination';
+import SelectSearch from '@/app/components/selectSearch';
+import { useUser } from '@/app/stores/userStore';
+import { axiosWithAuth } from '@/app/utils/axiosInstance';
+import queryClient from '@/app/utils/queryClient';
 import {
   faFilter,
   faMagnifyingGlass,
   faUserAstronaut,
   faUsers,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Link from "next/link";
-import React, { useState } from "react";
-import { useMutation, useQuery } from "react-query";
-import { toast } from "react-toastify";
-import Pagination from "@/app/components/paggination";
-import queryClient from "@/app/utils/queryClient";
-import moment from "moment";
-import AlertCustom from "@/app/components/alert";
-import Modal from "@/app/components/modal";
-import SelectSearch from "@/app/components/selectSearch";
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import moment from 'moment';
+import Link from 'next/link';
+import { useState } from 'react';
+import { useMutation, useQuery } from 'react-query';
+import { toast } from 'react-toastify';
 
 export default function Page() {
   const user = useUser();
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleOpenModal = () => {
     setModalOpen(true);
@@ -37,12 +37,12 @@ export default function Page() {
   };
 
   const doInvite = (users: never[]) => {
-    const team_id = localStorage.getItem("instanceSelected");
-    const data = users.map((user) => {
+    const team_id = localStorage.getItem('instanceSelected');
+    const data = users.map((user: any) => {
       return {
         user_id: user.user_id,
         team_id,
-        role: "MEMBER",
+        role: 'MEMBER',
       };
     });
     return axiosWithAuth
@@ -52,7 +52,7 @@ export default function Page() {
   };
 
   const fetchUsers = async (query: any) => {
-    let team_id = localStorage.getItem("instanceSelected");
+    let team_id = localStorage.getItem('instanceSelected');
 
     return axiosWithAuth
       .get(`users/${team_id}?query=${query}`)
@@ -66,9 +66,8 @@ export default function Page() {
     data: users,
     isLoading: isLoadingUserSearch,
     isError,
-  } = useQuery(["users", searchQuery], () => fetchUsers(searchQuery), {
-    enabled: !!searchQuery, // Only fetch when searchQuery is not empty
-    refetchOnWindowFocus: false,
+  } = useQuery(['users', searchQuery], () => fetchUsers(searchQuery), {
+    enabled: !!searchQuery,
   });
 
   const handleSearch = (query: any) => {
@@ -79,23 +78,23 @@ export default function Page() {
   const { mutate } = useMutation({
     mutationFn: doInvite,
     onSuccess: () => {
-      toast.success("User successfully invited");
-      queryClient.invalidateQueries(["members"]);
+      toast.success('User successfully invited');
+      queryClient.invalidateQueries(['members']);
     },
     onError: () => {
-      toast.error("Failed to invite user");
+      toast.error('Failed to invite user');
     },
   });
 
-  const handleInvite = (e) => {
+  const handleInvite = (e: any) => {
     e.preventDefault();
     mutate(selectedUsers);
   };
 
   const fetchTeamMember = () => {
-    let page = localStorage.getItem("page") || 1;
-    let limit = localStorage.getItem("limit") || 10;
-    const team_id = localStorage.getItem("instanceSelected");
+    let page = localStorage.getItem('page') || 1;
+    let limit = localStorage.getItem('limit') || 10;
+    const team_id = localStorage.getItem('instanceSelected');
 
     return axiosWithAuth
       .get(`team/members/${team_id}?page=${page}&limit=${limit}`)
@@ -106,7 +105,7 @@ export default function Page() {
   };
 
   const fetchTeam = () => {
-    const team_id = localStorage.getItem("instanceSelected");
+    const team_id = localStorage.getItem('instanceSelected');
 
     return axiosWithAuth
       .get(`team/${team_id}`)
@@ -116,15 +115,15 @@ export default function Page() {
       });
   };
 
-  const { data: members, isLoading } = useQuery(["members"], fetchTeamMember);
+  const { data: members, isLoading } = useQuery(['members'], fetchTeamMember);
 
   const { data: team, isLoading: isLoadingTeam } = useQuery(
-    ["team"],
+    ['team'],
     fetchTeam
   );
 
   const suspendUser = (user_id: string) => {
-    const team_id = localStorage.getItem("instanceSelected");
+    const team_id = localStorage.getItem('instanceSelected');
 
     return axiosWithAuth
       .post(`team/member/suspend/`, {
@@ -140,16 +139,16 @@ export default function Page() {
   const { isLoading: isLoadingSuspend, mutate: mutationSuspend } = useMutation({
     mutationFn: suspendUser,
     onSuccess: () => {
-      toast.success("User successfully suspended");
-      queryClient.invalidateQueries(["members"]);
+      toast.success('User successfully suspended');
+      queryClient.invalidateQueries(['members']);
     },
     onError: () => {
-      toast.error("Failed to suspend user");
+      toast.error('Failed to suspend user');
     },
   });
 
   const handleSuspend = (user_id: string) => {
-    AlertCustom("Are you sure you want to suspend this user?", () => {
+    AlertCustom('Are you sure you want to suspend this user?', () => {
       mutationSuspend(user_id);
     });
   };
@@ -172,7 +171,7 @@ export default function Page() {
           {/* header */}
           <div className="flex justify-between items-center mb-6 bg-white p-5 rounded">
             <h2 className="text-xl font-semibold">
-              All members{" "}
+              All members{' '}
               <span className="text-slate-500">{members.length}</span>
             </h2>
 
@@ -225,10 +224,10 @@ export default function Page() {
                         className="text-emerald-600"
                       />
                       <h2 className="text-lg font-semibold text-center">
-                        Invite a member to{" "}
+                        Invite a member to{' '}
                         <span className="text-emerald-600">
                           {team?.team_name}
-                        </span>{" "}
+                        </span>{' '}
                         Team
                       </h2>
                     </div>
@@ -296,15 +295,15 @@ export default function Page() {
                         </div>
                       </td>
                       <td className="text-center text-emerald-600 underline">
-                        <Link href={""}>@{member.user.username}</Link>
+                        <Link href={''}>@{member.user.username}</Link>
                       </td>
                       <td className="text-center">{member.user.email}</td>
                       <td className="text-center">{member.role}</td>
                       <td className="text-center">
-                        {member.user.status ? "Online" : "Offline"}
+                        {member.user.status ? 'Online' : 'Offline'}
                       </td>
                       <td className="text-center">
-                        {moment(member.joined_at).startOf("hour").fromNow()}
+                        {moment(member.joined_at).startOf('hour').fromNow()}
                       </td>
                       <td className="flex justify-center items-center h-full w-full mt-2">
                         <button
@@ -312,8 +311,8 @@ export default function Page() {
                           disabled={member.user.user_id == user.user_id}
                           className={`xl:w-[112px] btn btn-sm btn-error ${
                             member.user.user_id == user.user_id
-                              ? "cursor-not-allowed opacity-60"
-                              : ""
+                              ? 'cursor-not-allowed opacity-60'
+                              : ''
                           }`}
                         >
                           {isLoadingSuspend && (
@@ -331,7 +330,7 @@ export default function Page() {
           <div className="flex items-center justify-between">
             <div>
               <span className="font-light">
-                Total <span className="font-semibold">10</span> data dari{" "}
+                Total <span className="font-semibold">10</span> data dari{' '}
                 <span className="font-semibold">20</span>
               </span>
             </div>
@@ -340,8 +339,8 @@ export default function Page() {
               page={+members.page}
               totalPages={+members.totalPages}
               onPageChange={(newPage) => {
-                localStorage.setItem("page", String(newPage));
-                queryClient.invalidateQueries(["members"]);
+                localStorage.setItem('page', String(newPage));
+                queryClient.invalidateQueries(['members']);
               }}
             />
           </div>
