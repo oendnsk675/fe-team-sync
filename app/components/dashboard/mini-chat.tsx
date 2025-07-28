@@ -134,7 +134,7 @@ export default function MiniChat() {
         user: user,
         createdAt: new Date().toISOString(),
       };
-      addMessage(newMessage);
+      // addMessage(newMessage);
     }
   };
 

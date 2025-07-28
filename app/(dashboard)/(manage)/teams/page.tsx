@@ -1,7 +1,6 @@
 'use client';
 
 import Pagination from '@/app/components/paggination';
-import { TEAM_ROLES } from '@/app/shared/constant/team';
 import { AddMemberTeam } from '@/app/shared/types/team';
 import { useUser } from '@/app/stores/userStore';
 import { axiosWithAuth } from '@/app/utils/axiosInstance';
@@ -62,13 +61,13 @@ export default function Page() {
 
   function handleSelectInstance(instance: string): void {
     setInstanceSelected(instance);
-    console.log(instanceSelected);
-    mutate({
-      team_id: +instance,
-      description: 'test',
-      role: TEAM_ROLES.DEVELOPER,
-      user_id: user?.user_id,
-    });
+    localStorage.setItem('instanceSelected', instance);
+    // mutate({
+    //   team_id: +instance,
+    //   description: 'test',
+    //   role: TEAM_ROLES.DEVELOPER,
+    //   user_id: user?.user_id,
+    // });
   }
 
   return (
