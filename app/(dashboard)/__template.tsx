@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import userStore from "../stores/userStore";
-import { QueryClientProvider, useQuery } from "react-query";
-import { axiosWithAuth } from "../utils/axiosInstance";
-import queryClient from "../utils/queryClient";
-import { ReactQueryDevtools } from "react-query/devtools";
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { QueryClientProvider, useQuery } from 'react-query';
+import { ReactQueryDevtools } from 'react-query/devtools';
+import userStore from '../stores/userStore';
+import { axiosWithAuth } from '../utils/axiosInstance';
+import queryClient from '../utils/queryClient';
 
 export default function Template({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -17,7 +17,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
     data: userProfile,
     isLoading,
     isError,
-  } = useQuery("profile", fetchProfile, {
+  } = useQuery('profile', fetchProfile, {
     onSuccess: ({ data }) => {
       // let instanceSelected = localStorage.getItem("instanceSelected");
       setUser(data);
@@ -29,11 +29,9 @@ export default function Template({ children }: { children: React.ReactNode }) {
     },
     onError: () => {
       setAuthenticated(false);
-      router.push("/sign-in");
+      router.push('/sign-in');
     },
   });
-
-  console.log("asd");
 
   if (isLoading) {
     return (
@@ -54,6 +52,6 @@ export default function Template({ children }: { children: React.ReactNode }) {
 }
 
 const fetchProfile = async () => {
-  const response = await axiosWithAuth.get("/user/profile");
+  const response = await axiosWithAuth.get('/user/profile');
   return response.data;
 };

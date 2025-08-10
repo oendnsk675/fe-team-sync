@@ -6,6 +6,8 @@ export type Message = {
   message: string;
   user_id?: any;
   user?: any;
+  team_id?: any;
+  iv?: any;
   status?: boolean;
   createdAt?: string;
 };

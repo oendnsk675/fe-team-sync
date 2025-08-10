@@ -1,4 +1,4 @@
-export type RoleTeam = 'AUTHOR' | 'MAINTENER' | 'DEVELOPER';
+export type RoleTeam = 'AUTHOR' | 'MEMBER';
 
 export type AddMemberTeam = {
   user_id: number;

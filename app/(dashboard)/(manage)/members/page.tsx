@@ -31,8 +31,6 @@ export default function Page() {
   };
 
   const handleCloseModal = (state: boolean) => {
-    console.log(searchQuery);
-
     setModalOpen(state);
   };
 

@@ -1,6 +1,7 @@
 'use client';
 
 import Pagination from '@/app/components/paggination';
+import { TEAM_ROLES } from '@/app/shared/constant/team';
 import { AddMemberTeam } from '@/app/shared/types/team';
 import { useUser } from '@/app/stores/userStore';
 import { axiosWithAuth } from '@/app/utils/axiosInstance';
@@ -39,20 +40,21 @@ export default function Page() {
 
   const addMemberTeam = async (payload: AddMemberTeam) => {
     try {
-      const { data } = await axiosWithAuth.post('member/invite', payload);
-      return data.data;
+      const data = await axiosWithAuth
+        .post('team/member/invite', payload)
+        .then(({ data }) => data);
+      return data;
     } catch (error: any) {
       throw error;
     }
   };
   const { mutate } = useMutation(addMemberTeam, {
-    onSuccess: ({ data }) => {
-      console.log(data);
-
-      toast.success(data.message, {
+    onSuccess: ({ data, message }) => {
+      toast.success(message, {
         autoClose: 2000,
       });
       localStorage.setItem('instanceSelected', data?.team_id.toString());
+      localStorage.setItem('encrypted_gck', data?.encrypted_gck);
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message);
@@ -61,13 +63,12 @@ export default function Page() {
 
   function handleSelectInstance(instance: string): void {
     setInstanceSelected(instance);
-    localStorage.setItem('instanceSelected', instance);
-    // mutate({
-    //   team_id: +instance,
-    //   description: 'test',
-    //   role: TEAM_ROLES.DEVELOPER,
-    //   user_id: user?.user_id,
-    // });
+    mutate({
+      team_id: +instance,
+      description: 'test',
+      role: TEAM_ROLES.MEMBER,
+      user_id: user?.user_id,
+    });
   }
 
   return (

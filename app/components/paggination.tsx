@@ -14,8 +14,6 @@ const Pagination = ({
   total,
 }: PType) => {
   const handleClick = (newPage: number) => {
-    // console.log(newPage, page, "sad");
-
     if (newPage > 0 && newPage <= totalPages) {
       onPageChange(newPage);
     }

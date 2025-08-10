@@ -6,6 +6,8 @@ import React, {
   useState,
 } from 'react';
 import io, { Socket } from 'socket.io-client';
+import { Message } from '../stores/userStore';
+import { decryptEncryptedKey, encryptMessage } from '../utils/crypto';
 
 interface WebSocketContextType {
   socket: Socket | null;
@@ -60,9 +62,21 @@ export const WebSocketProvider = ({
     };
   }, []);
 
-  const sendMessage = (payload: any) => {
+  const sendMessage = async (payload: Message) => {
     if (socketRef.current) {
-      socketRef.current.emit('message', payload);
+      const encrypted_gck = localStorage.getItem('encrypted_gck');
+      const private_key = localStorage.getItem(
+        `rsa-private-key-${payload.user_id}`
+      );
+      if (encrypted_gck && private_key) {
+        const gck = await decryptEncryptedKey(encrypted_gck, private_key);
+        const originalMessage = payload.message;
+        const { ciphertext, iv } = await encryptMessage(payload.message, gck);
+        payload.message = ciphertext;
+        payload.iv = iv;
+
+        socketRef.current.emit('message', payload);
+      }
     }
   };
 

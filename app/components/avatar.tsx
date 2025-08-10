@@ -1,11 +1,8 @@
-import {
-  faGear,
-  faRightFromBracket,
-  faUser,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Image from "next/image";
-import Link from "next/link";
+import { faGear, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 type AType = {
   name: string;
@@ -16,6 +13,13 @@ type AType = {
 };
 
 const Avatar = ({ name, username, img, width, height }: AType) => {
+  const router = useRouter();
+
+  const handleSignOut = () => {
+    localStorage.clear();
+    router.push('/sign-in');
+  };
+
   return (
     <div className="flex items-center gap-3">
       <div>
@@ -38,7 +42,7 @@ const Avatar = ({ name, username, img, width, height }: AType) => {
         >
           <li>
             <Link
-              href={"settings"}
+              href={'settings'}
               className="flex items-center gap-3 text-slate-600"
             >
               <FontAwesomeIcon icon={faGear} />
@@ -46,13 +50,13 @@ const Avatar = ({ name, username, img, width, height }: AType) => {
             </Link>
           </li>
           <li>
-            <Link
-              href={"signout"}
+            <button
+              onClick={handleSignOut}
               className="flex items-center gap-3 text-slate-600"
             >
               <FontAwesomeIcon icon={faRightFromBracket} />
               <span>Sign Out</span>
-            </Link>
+            </button>
           </li>
         </ul>
       </div>

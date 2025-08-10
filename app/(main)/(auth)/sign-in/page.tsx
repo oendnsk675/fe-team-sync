@@ -1,18 +1,17 @@
-"use client";
+'use client';
 
-import { useSignIn } from "@/app/hooks/useAuth";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Image from "next/image";
-import Link from "next/link";
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useSignIn } from '@/app/hooks/useAuth';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function Page() {
   const router = useRouter();
 
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: '',
+    password: '',
   });
 
   const handleChange = (e: any) => {
@@ -25,7 +24,7 @@ export default function Page() {
   };
 
   const { mutate, isLoading } = useSignIn(() => {
-    router.push("dashboard");
+    router.push('dashboard');
   });
 
   const handleSubmit = (e: any) => {
@@ -92,7 +91,7 @@ export default function Page() {
               />
             </svg>
             <input
-              type="text"
+              type="password"
               className="grow"
               placeholder="Password"
               name="password"
@@ -111,7 +110,7 @@ export default function Page() {
           <div className="divider">OR</div>
           <button className="btn btn-primary btn-outline rounded-md w-full btn-md">
             <Image
-              src={"/google_icon.png"}
+              src={'/google_icon.png'}
               alt="google icon"
               width={20}
               height={20}
@@ -120,9 +119,9 @@ export default function Page() {
           </button>
 
           <span className="text-sm w-full flex justify-center mt-4">
-            New to Team Sync App?{" "}
+            New to Team Sync App?{' '}
             <Link
-              href={"/sign-up"}
+              href={'/sign-up'}
               className="mx-1 text-[#1DB88E] hover:opacity-75 transition-all duration-150"
             >
               Sign Up

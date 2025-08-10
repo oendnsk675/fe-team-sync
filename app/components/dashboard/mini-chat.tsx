@@ -7,6 +7,7 @@ import {
   useUserActions,
 } from '@/app/stores/userStore';
 import { axiosWithAuth } from '@/app/utils/axiosInstance';
+import { decryptEncryptedKey, decryptMessage } from '@/app/utils/crypto';
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
@@ -47,25 +48,29 @@ export default function MiniChat() {
 
   useEffect(() => {
     if (socket) {
-      socket.on(
-        'message',
-        (msg: {
-          message: string;
-          team_id: string;
-          user_id: string;
-          user: any;
-          createdAt: string;
-        }) => {
+      socket.on('message', async (msg: Message) => {
+        const encryptedKeyFromDB = localStorage.getItem('encrypted_gck');
+        const userPrivateKey = localStorage.getItem(
+          `rsa-private-key-${user.user_id}`
+        );
+
+        if (encryptedKeyFromDB && userPrivateKey) {
+          const gck = await decryptEncryptedKey(
+            encryptedKeyFromDB,
+            userPrivateKey
+          );
+          const message = await decryptMessage(msg.message, msg.iv, gck);
+
           let newMessage: Message = {
             id: new Date().toISOString(),
-            message: msg.message,
+            message,
             user_id: msg.user_id,
             user: msg.user,
-            createdAt: new Date(msg.createdAt).toISOString(),
+            createdAt: msg.createdAt && new Date(msg.createdAt).toISOString(),
           };
           addMessage(newMessage);
         }
-      );
+      });
     }
   }, [socket]);
 
@@ -90,9 +95,31 @@ export default function MiniChat() {
     ['dataMessage', page, limit],
     () => fetchDataMessage(page, limit),
     {
-      onSuccess: (newData) => {
-        newData = newData.reverse();
-        setMessages([...newData, ...messages] as Message[]);
+      onSuccess: async (newData) => {
+        let newMessages = await Promise.all(
+          newData.map(async (msg: any) => {
+            const encrypted_gck = localStorage.getItem('encrypted_gck');
+            const userPrivateKey = localStorage.getItem(
+              `rsa-private-key-${user.user_id}`
+            );
+            if (encrypted_gck && userPrivateKey) {
+              const gck = await decryptEncryptedKey(
+                encrypted_gck,
+                userPrivateKey
+              );
+
+              const message = await decryptMessage(msg.message, msg.iv, gck);
+              return {
+                ...msg,
+                message,
+              };
+            }
+            return '';
+          })
+        );
+
+        newMessages = newMessages.reverse();
+        setMessages([...newMessages, ...messages] as Message[]);
         setHasMore(newData.length > 0);
         setRendered(true);
       },
@@ -120,20 +147,21 @@ export default function MiniChat() {
     let message = newMessage.trim();
 
     if (message && team_id && message != '') {
-      const payload = {
+      const payload: Message = {
         message,
+        user_id: user?.user_id,
         team_id,
+        user: user,
       };
       sendMessage(payload);
       setNewMessage('');
-      // TODO: perbaiki untuk payloading baiknya menggunakan uuid di id nya
-      let newMessage: Message = {
-        id: new Date().toISOString(),
-        message: message,
-        user_id: user?.user_id,
-        user: user,
-        createdAt: new Date().toISOString(),
-      };
+      // let newMessage: Message = {
+      //   id: new Date().toISOString(),
+      //   message: message,
+      //   user_id: user?.user_id,
+      //   user: user,
+      //   createdAt: new Date().toISOString(),
+      // };
       // addMessage(newMessage);
     }
   };
@@ -189,9 +217,7 @@ export default function MiniChat() {
                 <div className="chat-image avatar">
                   <div className="w-10 h-10 rounded-full overflow-hidden">
                     <Image
-                      src={
-                        'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg'
-                      }
+                      src={'/avatar/superperson@192.webp'}
                       alt="avatar"
                       layout="fill"
                       objectFit="cover"
