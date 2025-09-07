@@ -62,19 +62,27 @@ export const WebSocketProvider = ({
     };
   }, []);
 
+  // fungsi untuk mengirim pesan
   const sendMessage = async (payload: Message) => {
     if (socketRef.current) {
+      // mengambil gck dan private key di local storage browser
       const encrypted_gck = localStorage.getItem('encrypted_gck');
       const private_key = localStorage.getItem(
         `rsa-private-key-${payload.user_id}`
       );
       if (encrypted_gck && private_key) {
+        // code untuk melakukan dekripsi gck
         const gck = await decryptEncryptedKey(encrypted_gck, private_key);
-        const originalMessage = payload.message;
+        // const originalMessage = payload.message;
+
+        // code untuk melakukan enkripsi pesan dengan memanggil fungsi encryptMessage dari utils, fungsi ini akan menerima plaintext dan gck, dan akan mengembalikan ciphertext dan iv
         const { ciphertext, iv } = await encryptMessage(payload.message, gck);
+
+        // code untuk memasukkan ciphertext(pesan yang sudah di enkripsi) dan iv ke payload yang siap dikirim
         payload.message = ciphertext;
         payload.iv = iv;
 
+        // code untuk mengirim payload
         socketRef.current.emit('message', payload);
       }
     }

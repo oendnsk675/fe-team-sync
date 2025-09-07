@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
+// type mesasge yang terdiri dari, id, message, user_id, user, team_id, iv, status, createdAt
 export type Message = {
   id?: string;
   message: string;

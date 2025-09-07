@@ -48,17 +48,21 @@ export default function MiniChat() {
 
   useEffect(() => {
     if (socket) {
+      // code untuk listen pesan yang di forward dari server dengan topic message
       socket.on('message', async (msg: Message) => {
+        // code untuk mengambil gck dan private key di local storage
         const encryptedKeyFromDB = localStorage.getItem('encrypted_gck');
         const userPrivateKey = localStorage.getItem(
           `rsa-private-key-${user.user_id}`
         );
 
         if (encryptedKeyFromDB && userPrivateKey) {
+          // code untuk melakukan dekripsi gck
           const gck = await decryptEncryptedKey(
             encryptedKeyFromDB,
             userPrivateKey
           );
+          // code untuk melakukan dekripsi pesan dengan memanggil fungsi decryptMessage
           const message = await decryptMessage(msg.message, msg.iv, gck);
 
           let newMessage: Message = {

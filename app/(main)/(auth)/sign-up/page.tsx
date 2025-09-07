@@ -1,20 +1,19 @@
-"use client";
+'use client';
 
-import { useSignUp } from "@/app/hooks/useAuth";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Image from "next/image";
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import { ToastContainer } from "react-toastify";
+import { useSignUp } from '@/app/hooks/useAuth';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState } from 'react';
+import { ToastContainer } from 'react-toastify';
 
 export default function Page() {
   const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-    fullname: "",
-    avatar: "",
-    role: "user",
+    username: '',
+    email: '',
+    password: '',
+    fullname: '',
+    avatar: '',
+    role: 'user',
   });
 
   const { mutate, isLoading, isError, isSuccess, error } = useSignUp();
@@ -37,13 +36,17 @@ export default function Page() {
       <ToastContainer />
       <div className="rounded bg-white shadow 2xl:w-[30%] lg:w-[40%] p-4">
         <div className="w-full flex flex-col items-center gap-6 p-3 mb-3">
-          <Image
-            src="/vercel.svg"
-            alt="Next.js Logo"
-            width={120}
-            height={37}
-            priority
-          />
+          <div className="flex items-center">
+            <Image
+              src={'/logo.svg'}
+              alt="logo team sync"
+              width={35}
+              height={35}
+            />
+            <h1 className="text-2xl font-bold italic ml-2 text-emerald-950">
+              Team Sync
+            </h1>
+          </div>
           <div className="w-[75%]">
             <h3 className="text-xl font-semibold text-center">
               Welcome to Team Sync App
@@ -147,7 +150,7 @@ export default function Page() {
           <div className="divider">OR</div>
           <button className="btn btn-primary btn-outline rounded-md w-full btn-md">
             <Image
-              src={"/google_icon.png"}
+              src={'/google_icon.png'}
               alt="google icon"
               width={20}
               height={20}
@@ -156,9 +159,9 @@ export default function Page() {
           </button>
 
           <span className="text-sm w-full flex justify-center mt-4">
-            Already have an account?{" "}
+            Already have an account?{' '}
             <Link
-              href={"/sign-in"}
+              href={'/sign-in'}
               className="mx-1 text-[#1DB88E] hover:opacity-75 transition-all duration-150"
             >
               Sign In

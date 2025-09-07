@@ -114,8 +114,9 @@ async function generateEncryptGroupKey(groupKey: CryptoKey, userIds: string[]) {
   return base64Key;
 }
 
+// Fungsi enkripsi pesan, yang menerima parameter plaintext dan gck
 export async function encryptMessage(
-  plaintext: string,
+  plaintext: string, // original pesan
   gck: CryptoKey
 ): Promise<{ ciphertext: string; iv: string }> {
   const encoder = new TextEncoder();
@@ -124,6 +125,7 @@ export async function encryptMessage(
   // Generate random IV (Initialization Vector)
   const iv = crypto.getRandomValues(new Uint8Array(12));
 
+  // penerapan enkripsi AES pada data pesan
   const encrypted = await crypto.subtle.encrypt(
     {
       name: 'AES-GCM',
@@ -133,17 +135,18 @@ export async function encryptMessage(
     data
   );
 
-  // Convert to base64
+  // Convert ke base64
   const ciphertext = window.btoa(
     String.fromCharCode(...new Uint8Array(encrypted))
-  );
+  ); // pesan yang sudah di enkripsi
   const ivBase64 = window.btoa(String.fromCharCode(...iv));
 
   return { ciphertext, iv: ivBase64 };
 }
 
+// fungsi untuk mendekripsi pesan yang sudah di enkripsi, yang menerima parameter ciphertext dan iv, dan gck
 export async function decryptMessage(
-  ciphertextBase64: string,
+  ciphertextBase64: string, // data pesan yang sudah di enkripsi
   ivBase64: string,
   gck: CryptoKey
 ): Promise<string> {
@@ -152,6 +155,7 @@ export async function decryptMessage(
   );
   const iv = Uint8Array.from(atob(ivBase64), (c) => c.charCodeAt(0));
 
+  // penerapan code untuk melakukan dekripsi pesan menggunakan algoritma AES dengan IV
   const decrypted = await crypto.subtle.decrypt(
     {
       name: 'AES-GCM',
@@ -161,8 +165,11 @@ export async function decryptMessage(
     ciphertext
   );
 
+  // code untuk mengubah ciphertext menjadi string
   const decoder = new TextDecoder();
-  return decoder.decode(decrypted);
+  const plaintext = decoder.decode(decrypted); // pesan yang sudah di dekripsi / original
+
+  return plaintext;
 }
 
 function pemToArrayBuffer(pem: string): ArrayBuffer {

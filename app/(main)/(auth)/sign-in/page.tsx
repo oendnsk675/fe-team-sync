@@ -36,13 +36,17 @@ export default function Page() {
     <div className="w-full flex justify-center lg:mt-[4rem] 2xl:mt-[6rem]">
       <div className="rounded bg-white shadow 2xl:w-[30%] lg:w-[40%] p-4">
         <div className="w-full flex flex-col items-center gap-6 p-3 mb-3">
-          <Image
-            src="/logo-1.png"
-            alt="Next.js Logo"
-            width={40}
-            height={40}
-            priority
-          />
+          <div className="flex items-center">
+            <Image
+              src={'/logo.svg'}
+              alt="logo team sync"
+              width={35}
+              height={35}
+            />
+            <h1 className="text-2xl font-bold italic ml-2 text-emerald-950">
+              Team Sync
+            </h1>
+          </div>
           <div className="w-[75%]">
             <h3 className="text-xl font-semibold text-center">
               Welcome to Team Sync App
@@ -115,7 +119,7 @@ export default function Page() {
               width={20}
               height={20}
             />
-            <span>Sign In With Google</span>
+            <span className="text-white">Sign In With Google</span>
           </button>
 
           <span className="text-sm w-full flex justify-center mt-4">
