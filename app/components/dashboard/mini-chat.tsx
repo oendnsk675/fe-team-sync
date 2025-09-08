@@ -64,6 +64,10 @@ export default function MiniChat() {
           );
           // code untuk melakukan dekripsi pesan dengan memanggil fungsi decryptMessage
           const message = await decryptMessage(msg.message, msg.iv, gck);
+          console.table({
+            'Sebelum decrypt': msg.message,
+            'Sesudah decrypt': message,
+          });
 
           let newMessage: Message = {
             id: new Date().toISOString(),
