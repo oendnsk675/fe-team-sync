@@ -73,7 +73,7 @@ export const WebSocketProvider = ({
       if (encrypted_gck && private_key) {
         // code untuk melakukan dekripsi gck
         const gck = await decryptEncryptedKey(encrypted_gck, private_key);
-        // const originalMessage = payload.message;
+        const originalMessage = payload.message;
 
         // code untuk melakukan enkripsi pesan dengan memanggil fungsi encryptMessage dari utils, fungsi ini akan menerima plaintext dan gck, dan akan mengembalikan ciphertext dan iv
         const { ciphertext, iv } = await encryptMessage(payload.message, gck);
@@ -84,6 +84,10 @@ export const WebSocketProvider = ({
 
         // code untuk mengirim payload
         socketRef.current.emit('message', payload);
+        console.table({
+          'Sebelum encrypt dan kirim pesan': originalMessage,
+          'Sesudah encrypt dan kirim pesan': ciphertext,
+        });
       }
     }
   };
